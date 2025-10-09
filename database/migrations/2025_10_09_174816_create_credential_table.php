@@ -30,8 +30,8 @@ return new class extends Migration
             // Access control
             $table->json('shared_with_users')->nullable(); // Using JSON instead of UUID array
 
-            $table->timestampTz('created_at')->default(DB::raw('NOW()'));
-            $table->timestampTz('updated_at')->default(DB::raw('NOW()'));
+            $table->timestampTz('created_at')->useCurrent();
+            $table->timestampTz('updated_at')->useCurrent();
 
             // Foreign key constraints
             $table->foreign('org_id')->references('id')->on('organizations')->onDelete('set null');
