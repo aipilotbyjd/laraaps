@@ -3,6 +3,9 @@
 namespace App\Services\Notification;
 
 use App\Models\Notification;
+use App\Models\NotificationChannel;
+use App\Models\NotificationSetting;
+use Illuminate\Support\Str;
 
 class NotificationService
 {
@@ -32,30 +35,38 @@ class NotificationService
         return Notification::destroy($id);
     }
 
-    // Mocked methods for now
-
     public function getSettings(string $userId)
     {
-        return [];
+        return NotificationSetting::where('user_id', $userId)->get();
     }
 
     public function updateSettings(string $userId, array $settings)
     {
-        return ['message' => 'Settings updated.'];
+        foreach ($settings as $key => $value) {
+            NotificationSetting::updateOrCreate(
+                ['user_id' => $userId, 'key' => $key],
+                ['value' => $value]
+            );
+        }
+
+        return $this->getSettings($userId);
     }
 
     public function getChannels(string $userId)
     {
-        return [];
+        return NotificationChannel::where('user_id', $userId)->get();
     }
 
-    public function createChannel(string $userId, array $channel)
+    public function createChannel(string $userId, array $channel): NotificationChannel
     {
-        return ['message' => 'Channel created.'];
+        $channel['id'] = Str::uuid();
+        $channel['user_id'] = $userId;
+
+        return NotificationChannel::create($channel);
     }
 
-    public function deleteChannel(string $id)
+    public function deleteChannel(string $id): bool
     {
-        return ['message' => 'Channel deleted.'];
+        return NotificationChannel::destroy($id);
     }
 }

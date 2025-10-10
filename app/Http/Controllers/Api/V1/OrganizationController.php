@@ -3,92 +3,100 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Organization\OrganizationService;
 use Illuminate\Http\Request;
 
 class OrganizationController extends Controller
 {
+    protected $organizationService;
+
+    public function __construct(OrganizationService $organizationService)
+    {
+        $this->organizationService = $organizationService;
+    }
+
     public function index(Request $request)
     {
-        return response()->json(['message' => 'index method not implemented']);
+        return $this->organizationService->getOrganizations();
     }
 
     public function store(Request $request)
     {
-        return response()->json(['message' => 'store method not implemented']);
+        return $this->organizationService->createOrganization($request->all(), $request->user()->id);
     }
 
     public function show(Request $request, $id)
     {
-        return response()->json(['message' => 'show method not implemented']);
+        return $this->organizationService->getOrganization($id);
     }
 
     public function update(Request $request, $id)
     {
-        return response()->json(['message' => 'update method not implemented']);
+        return $this->organizationService->updateOrganization($id, $request->all());
     }
 
     public function destroy(Request $request, $id)
     {
-        return response()->json(['message' => 'destroy method not implemented']);
+        return $this->organizationService->deleteOrganization($id);
     }
 
     public function getMembers(Request $request, $id)
     {
-        return response()->json(['message' => 'getMembers method not implemented']);
+        return $this->organizationService->getMembers($id);
     }
 
     public function addMember(Request $request, $id)
     {
-        return response()->json(['message' => 'addMember method not implemented']);
+        return $this->organizationService->addMember($id, $request->input('user_id'), $request->input('role'));
     }
 
     public function removeMember(Request $request, $id, $userId)
     {
-        return response()->json(['message' => 'removeMember method not implemented']);
+        return $this->organizationService->removeMember($id, $userId);
     }
 
     public function updateMemberRole(Request $request, $id, $userId)
     {
-        return response()->json(['message' => 'updateMemberRole method not implemented']);
+        return $this->organizationService->updateMemberRole($id, $userId, $request->input('role'));
     }
 
     public function getTeams(Request $request, $id)
     {
-        return response()->json(['message' => 'getTeams method not implemented']);
+        return $this->organizationService->getTeams($id);
     }
 
     public function createTeam(Request $request, $id)
     {
-        return response()->json(['message' => 'createTeam method not implemented']);
+        return $this->organizationService->createTeam($id, $request->all());
     }
 
     public function updateTeam(Request $request, $id, $teamId)
     {
-        return response()->json(['message' => 'updateTeam method not implemented']);
+        return $this->organizationService->updateTeam($id, $teamId, $request->all());
     }
 
     public function deleteTeam(Request $request, $id, $teamId)
     {
-        return response()->json(['message' => 'deleteTeam method not implemented']);
+        return $this->organizationService->deleteTeam($id, $teamId);
     }
 
     public function getSettings(Request $request, $id)
     {
-        return response()->json(['message' => 'getSettings method not implemented']);
+        return $this->organizationService->getSettings($id);
     }
 
     public function updateSettings(Request $request, $id)
     {
-        return response()->json(['message' => 'updateSettings method not implemented']);
+        return $this->organizationService->updateSettings($id, $request->all());
     }
 
     public function getUsage(Request $request, $id)
     {
-        return response()->json(['message' => 'getUsage method not implemented']);
+        return $this->organizationService->getUsage($id);
     }
 
     public function getBilling(Request $request, $id)
     {
-        return response()->json(['message' => 'getBilling method not implemented']);
+        return $this->organizationService->getBilling($id);
     }
 }

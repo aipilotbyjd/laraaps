@@ -77,6 +77,6 @@ class StorageController extends Controller
     {
         $path = $request->user()->org_id.'/'.$request->user()->id.'/'.$id;
 
-        return $this->storageService->shareFile($path, $request->input('user_id'));
+        return $this->storageService->shareFile($path, $request->input('user_id'), $request->user()->id, $request->input('permissions'));
     }
 }

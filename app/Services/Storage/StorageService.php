@@ -2,7 +2,9 @@
 
 namespace App\Services\Storage;
 
+use App\Models\FileShare;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class StorageService
 {
@@ -31,6 +33,17 @@ class StorageService
         return Storage::download($path);
     }
 
+    public function shareFile(string $path, string $userId, string $sharedBy, string $permissions = 'read'): FileShare
+    {
+        return FileShare::create([
+            'id' => Str::uuid(),
+            'file_path' => $path,
+            'user_id' => $userId,
+            'shared_by' => $sharedBy,
+            'permissions' => $permissions,
+        ]);
+    }
+
     // Mocked methods for now
 
     public function initMultipartUpload(string $path)
@@ -46,10 +59,5 @@ class StorageService
     public function completeMultipartUpload(string $path, array $parts)
     {
         return ['message' => 'Multipart upload completed.'];
-    }
-
-    public function shareFile(string $path, string $userId)
-    {
-        return ['message' => 'File shared.'];
     }
 }

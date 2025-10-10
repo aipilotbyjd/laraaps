@@ -3,117 +3,125 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Admin\AdminService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
+    protected $adminService;
+
+    public function __construct(AdminService $adminService)
+    {
+        $this->adminService = $adminService;
+    }
+
     public function getSystemHealth(Request $request)
     {
-        return response()->json(['message' => 'getSystemHealth method not implemented']);
+        return $this->adminService->getSystemHealth();
     }
 
     public function getSystemMetrics(Request $request)
     {
-        return response()->json(['message' => 'getSystemMetrics method not implemented']);
+        return $this->adminService->getSystemMetrics();
     }
 
     public function getSystemStatus(Request $request)
     {
-        return response()->json(['message' => 'getSystemStatus method not implemented']);
+        return $this->adminService->getSystemStatus();
     }
 
     public function enableMaintenance(Request $request)
     {
-        return response()->json(['message' => 'enableMaintenance method not implemented']);
+        return $this->adminService->enableMaintenance();
     }
 
     public function disableMaintenance(Request $request)
     {
-        return response()->json(['message' => 'disableMaintenance method not implemented']);
+        return $this->adminService->disableMaintenance();
     }
 
     public function getUsers(Request $request)
     {
-        return response()->json(['message' => 'getUsers method not implemented']);
+        return $this->adminService->getUsers();
     }
 
     public function createUser(Request $request)
     {
-        return response()->json(['message' => 'createUser method not implemented']);
+        return $this->adminService->createUser($request->all());
     }
 
     public function getUser(Request $request, $id)
     {
-        return response()->json(['message' => 'getUser method not implemented']);
+        return $this->adminService->getUser($id);
     }
 
     public function updateUser(Request $request, $id)
     {
-        return response()->json(['message' => 'updateUser method not implemented']);
+        return $this->adminService->updateUser($id, $request->all());
     }
 
     public function deleteUser(Request $request, $id)
     {
-        return response()->json(['message' => 'deleteUser method not implemented']);
+        return $this->adminService->deleteUser($id);
     }
 
     public function suspendUser(Request $request, $id)
     {
-        return response()->json(['message' => 'suspendUser method not implemented']);
+        return $this->adminService->suspendUser($id);
     }
 
     public function unsuspendUser(Request $request, $id)
     {
-        return response()->json(['message' => 'unsuspendUser method not implemented']);
+        return $this->adminService->unsuspendUser($id);
     }
 
     public function getWorkflows(Request $request)
     {
-        return response()->json(['message' => 'getWorkflows method not implemented']);
+        return $this->adminService->getWorkflows();
     }
 
     public function forceStopWorkflow(Request $request, $id)
     {
-        return response()->json(['message' => 'forceStopWorkflow method not implemented']);
+        return $this->adminService->forceStopWorkflow($id);
     }
 
     public function forceDeleteWorkflow(Request $request, $id)
     {
-        return response()->json(['message' => 'forceDeleteWorkflow method not implemented']);
+        return $this->adminService->forceDeleteWorkflow($id);
     }
 
     public function getAuditLogs(Request $request)
     {
-        return response()->json(['message' => 'getAuditLogs method not implemented']);
+        return $this->adminService->getAuditLogs();
     }
 
     public function exportAuditLogs(Request $request)
     {
-        return response()->json(['message' => 'exportAuditLogs method not implemented']);
+        return $this->adminService->exportAuditLogs();
     }
 
     public function getConfig(Request $request)
     {
-        return response()->json(['message' => 'getConfig method not implemented']);
+        return $this->adminService->getConfig();
     }
 
     public function updateConfig(Request $request)
     {
-        return response()->json(['message' => 'updateConfig method not implemented']);
+        return $this->adminService->updateConfig($request->all());
     }
 
     public function backup(Request $request)
     {
-        return response()->json(['message' => 'backup method not implemented']);
+        return $this->adminService->backup();
     }
 
     public function getBackups(Request $request)
     {
-        return response()->json(['message' => 'getBackups method not implemented']);
+        return $this->adminService->getBackups();
     }
 
     public function restore(Request $request, $backupId)
     {
-        return response()->json(['message' => 'restore method not implemented']);
+        return $this->adminService->restore($backupId);
     }
 }
