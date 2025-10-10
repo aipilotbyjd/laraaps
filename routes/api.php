@@ -36,7 +36,7 @@ Route::prefix('v1')->group(function () {
         Route::post('login', 'login');
         Route::post('logout', 'logout')->middleware('auth:sanctum');
         Route::post('refresh', 'refresh')->middleware('auth:sanctum');
-        Route::post('verify-email', 'verifyEmail');
+        Route::get('verify-email/{id}/{hash}', 'verifyEmail')->name('verification.verify');
         Route::post('resend-verification', 'resendVerification');
         Route::post('forgot-password', 'forgotPassword');
         Route::post('reset-password', 'resetPassword');
