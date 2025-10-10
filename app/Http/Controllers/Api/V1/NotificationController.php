@@ -3,52 +3,60 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Notification\NotificationService;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     public function index(Request $request)
     {
-        return response()->json(['message' => 'index method not implemented']);
+        return $this->notificationService->getNotifications($request->user()->id);
     }
 
     public function markAsRead(Request $request, $id)
     {
-        return response()->json(['message' => 'markAsRead method not implemented']);
+        return $this->notificationService->markAsRead($id);
     }
 
     public function markAllAsRead(Request $request)
     {
-        return response()->json(['message' => 'markAllAsRead method not implemented']);
+        return $this->notificationService->markAllAsRead($request->user()->id);
     }
 
     public function destroy(Request $request, $id)
     {
-        return response()->json(['message' => 'destroy method not implemented']);
+        return $this->notificationService->deleteNotification($id);
     }
 
     public function getSettings(Request $request)
     {
-        return response()->json(['message' => 'getSettings method not implemented']);
+        return $this->notificationService->getSettings($request->user()->id);
     }
 
     public function updateSettings(Request $request)
     {
-        return response()->json(['message' => 'updateSettings method not implemented']);
+        return $this->notificationService->updateSettings($request->user()->id, $request->all());
     }
 
     public function getChannels(Request $request)
     {
-        return response()->json(['message' => 'getChannels method not implemented']);
+        return $this->notificationService->getChannels($request->user()->id);
     }
 
     public function createChannel(Request $request)
     {
-        return response()->json(['message' => 'createChannel method not implemented']);
+        return $this->notificationService->createChannel($request->user()->id, $request->all());
     }
 
     public function deleteChannel(Request $request, $id)
     {
-        return response()->json(['message' => 'deleteChannel method not implemented']);
+        return $this->notificationService->deleteChannel($id);
     }
 }

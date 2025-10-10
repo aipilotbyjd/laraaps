@@ -3,87 +3,101 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\StoreNodeRequest;
+use App\Http\Requests\V1\UpdateNodeRequest;
+use App\Services\Node\NodeService;
 use Illuminate\Http\Request;
 
 class NodeController extends Controller
 {
+    protected $nodeService;
+
+    public function __construct(NodeService $nodeService)
+    {
+        $this->nodeService = $nodeService;
+    }
+
     public function index(Request $request)
     {
-        return response()->json(['message' => 'index method not implemented']);
+        return $this->nodeService->getNodes();
     }
 
     public function getCategories(Request $request)
     {
-        return response()->json(['message' => 'getCategories method not implemented']);
+        return $this->nodeService->getCategories();
     }
 
     public function getTags(Request $request)
     {
-        return response()->json(['message' => 'getTags method not implemented']);
+        return $this->nodeService->getTags();
     }
 
     public function getCustomNodes(Request $request)
     {
-        return response()->json(['message' => 'getCustomNodes method not implemented']);
+        return $this->nodeService->getCustomNodes($request->user()->org_id);
     }
 
-    public function createCustomNode(Request $request)
+    public function createCustomNode(StoreNodeRequest $request)
     {
-        return response()->json(['message' => 'createCustomNode method not implemented']);
+        $data = $request->validated();
+        $orgId = $request->user()->org_id;
+        $userId = $request->user()->id;
+
+        return $this->nodeService->createCustomNode($data, $orgId, $userId);
     }
 
-    public function updateCustomNode(Request $request, $id)
+    public function updateCustomNode(UpdateNodeRequest $request, $id)
     {
-        return response()->json(['message' => 'updateCustomNode method not implemented']);
+        return $this->nodeService->updateCustomNode($id, $request->validated());
     }
 
     public function deleteCustomNode(Request $request, $id)
     {
-        return response()->json(['message' => 'deleteCustomNode method not implemented']);
+        return $this->nodeService->deleteCustomNode($id);
     }
 
     public function publishCustomNode(Request $request, $id)
     {
-        return response()->json(['message' => 'publishCustomNode method not implemented']);
+        return $this->nodeService->publishCustomNode($id);
     }
 
     public function getUsageStats(Request $request)
     {
-        return response()->json(['message' => 'getUsageStats method not implemented']);
+        return $this->nodeService->getUsageStats();
     }
 
     public function show(Request $request, $type)
     {
-        return response()->json(['message' => 'show method not implemented']);
+        return $this->nodeService->getNodeByType($type);
     }
 
     public function getSchema(Request $request, $type)
     {
-        return response()->json(['message' => 'getSchema method not implemented']);
+        return $this->nodeService->getSchema($type);
     }
 
     public function testNode(Request $request, $type)
     {
-        return response()->json(['message' => 'testNode method not implemented']);
+        return $this->nodeService->testNode($type, $request->all());
     }
 
     public function validateConfig(Request $request, $type)
     {
-        return response()->json(['message' => 'validateConfig method not implemented']);
+        return $this->nodeService->validateConfig($type, $request->all());
     }
 
     public function getDynamicParameters(Request $request, $type)
     {
-        return response()->json(['message' => 'getDynamicParameters method not implemented']);
+        return $this->nodeService->getDynamicParameters($type);
     }
 
     public function resolveParameters(Request $request, $type)
     {
-        return response()->json(['message' => 'resolveParameters method not implemented']);
+        return $this->nodeService->resolveParameters($type, $request->all());
     }
 
     public function getNodeUsage(Request $request, $type)
     {
-        return response()->json(['message' => 'getNodeUsage method not implemented']);
+        return $this->nodeService->getNodeUsage($type);
     }
 }

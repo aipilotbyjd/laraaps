@@ -3,102 +3,113 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\StoreReviewRequest;
+use App\Http\Requests\V1\StoreTemplateRequest;
+use App\Http\Requests\V1\UpdateTemplateRequest;
+use App\Services\Template\TemplateService;
 use Illuminate\Http\Request;
 
 class TemplateController extends Controller
 {
+    protected $templateService;
+
+    public function __construct(TemplateService $templateService)
+    {
+        $this->templateService = $templateService;
+    }
+
     public function index(Request $request)
     {
-        return response()->json(['message' => 'index method not implemented']);
+        return $this->templateService->getTemplates();
     }
 
     public function getFeatured(Request $request)
     {
-        return response()->json(['message' => 'getFeatured method not implemented']);
+        return $this->templateService->getFeatured();
     }
 
     public function getTrending(Request $request)
     {
-        return response()->json(['message' => 'getTrending method not implemented']);
+        return $this->templateService->getTrending();
     }
 
     public function getCategories(Request $request)
     {
-        return response()->json(['message' => 'getCategories method not implemented']);
+        return $this->templateService->getCategories();
     }
 
     public function search(Request $request)
     {
-        return response()->json(['message' => 'search method not implemented']);
+        return $this->templateService->search($request->input('query'));
     }
 
     public function getFavorites(Request $request)
     {
-        return response()->json(['message' => 'getFavorites method not implemented']);
+        return $this->templateService->getFavorites($request->user()->id);
     }
 
     public function show(Request $request, $id)
     {
-        return response()->json(['message' => 'show method not implemented']);
+        return $this->templateService->getTemplate($id);
     }
 
     public function useTemplate(Request $request, $id)
     {
-        return response()->json(['message' => 'useTemplate method not implemented']);
+        return $this->templateService->useTemplate($id, $request->user()->id, $request->user()->org_id);
     }
 
     public function cloneTemplate(Request $request, $id)
     {
-        return response()->json(['message' => 'cloneTemplate method not implemented']);
+        return $this->templateService->cloneTemplate($id, $request->user()->id, $request->user()->org_id);
     }
 
     public function favoriteTemplate(Request $request, $id)
     {
-        return response()->json(['message' => 'favoriteTemplate method not implemented']);
+        return $this->templateService->favoriteTemplate($id, $request->user()->id);
     }
 
     public function unfavoriteTemplate(Request $request, $id)
     {
-        return response()->json(['message' => 'unfavoriteTemplate method not implemented']);
+        return $this->templateService->unfavoriteTemplate($id, $request->user()->id);
     }
 
-    public function publish(Request $request)
+    public function publish(StoreTemplateRequest $request)
     {
-        return response()->json(['message' => 'publish method not implemented']);
+        return $this->templateService->publish($request->validated(), $request->user()->id, $request->user()->org_id);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateTemplateRequest $request, $id)
     {
-        return response()->json(['message' => 'update method not implemented']);
+        return $this->templateService->updateTemplate($id, $request->validated());
     }
 
     public function destroy(Request $request, $id)
     {
-        return response()->json(['message' => 'destroy method not implemented']);
+        return $this->templateService->deleteTemplate($id);
     }
 
     public function getReviews(Request $request, $id)
     {
-        return response()->json(['message' => 'getReviews method not implemented']);
+        return $this->templateService->getReviews($id);
     }
 
-    public function createReview(Request $request, $id)
+    public function createReview(StoreReviewRequest $request, $id)
     {
-        return response()->json(['message' => 'createReview method not implemented']);
+        return $this->templateService->createReview($id, $request->user()->id, $request->input('comment'), $request->input('rating'));
     }
 
-    public function updateReview(Request $request, $id, $reviewId)
+    public function updateReview(StoreReviewRequest $request, $id, $reviewId)
     {
-        return response()->json(['message' => 'updateReview method not implemented']);
+        return $this->templateService->updateReview($id, $reviewId, $request->input('comment'), $request->input('rating'));
     }
 
     public function getStats(Request $request, $id)
     {
-        return response()->json(['message' => 'getStats method not implemented']);
+        return $this->templateService->getStats($id);
     }
 
     public function trackUsage(Request $request, $id)
     {
-        return response()->json(['message' => 'trackUsage method not implemented']);
+        return $this->templateService->trackUsage($id);
     }
 }

@@ -3,147 +3,158 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\ExecuteWorkflowRequest;
+use App\Services\Execution\ExecutionService;
 use Illuminate\Http\Request;
 
 class ExecutionController extends Controller
 {
+    protected $executionService;
+
+    public function __construct(ExecutionService $executionService)
+    {
+        $this->executionService = $executionService;
+    }
+
     public function index(Request $request)
     {
-        return response()->json(['message' => 'index method not implemented']);
+        return $this->executionService->getExecutionsByOrg($request->user()->org_id);
     }
 
     public function show(Request $request, $id)
     {
-        return response()->json(['message' => 'show method not implemented']);
+        return $this->executionService->getExecution($id);
     }
 
     public function destroy(Request $request, $id)
     {
-        return response()->json(['message' => 'destroy method not implemented']);
+        return $this->executionService->deleteExecution($id);
     }
 
     public function bulkDelete(Request $request)
     {
-        return response()->json(['message' => 'bulkDelete method not implemented']);
+        $this->executionService->bulkDeleteExecutions($request->input('ids'));
+
+        return response()->noContent();
     }
 
     public function stop(Request $request, $id)
     {
-        return response()->json(['message' => 'stop method not implemented']);
+        return $this->executionService->stop($id);
     }
 
     public function retry(Request $request, $id)
     {
-        return response()->json(['message' => 'retry method not implemented']);
+        return $this->executionService->retry($id);
     }
 
     public function resume(Request $request, $id)
     {
-        return response()->json(['message' => 'resume method not implemented']);
+        return $this->executionService->resume($id);
     }
 
     public function bulkRetry(Request $request)
     {
-        return response()->json(['message' => 'bulkRetry method not implemented']);
+        return $this->executionService->bulkRetry($request->input('ids'));
     }
 
     public function getNodes(Request $request, $id)
     {
-        return response()->json(['message' => 'getNodes method not implemented']);
+        return $this->executionService->getNodes($id);
     }
 
     public function getNode(Request $request, $id, $nodeId)
     {
-        return response()->json(['message' => 'getNode method not implemented']);
+        return $this->executionService->getNode($id, $nodeId);
     }
 
     public function getLogs(Request $request, $id)
     {
-        return response()->json(['message' => 'getLogs method not implemented']);
+        return $this->executionService->getLogs($id);
     }
 
     public function getTimeline(Request $request, $id)
     {
-        return response()->json(['message' => 'getTimeline method not implemented']);
+        return $this->executionService->getTimeline($id);
     }
 
     public function getData(Request $request, $id)
     {
-        return response()->json(['message' => 'getData method not implemented']);
+        return $this->executionService->getData($id);
     }
 
     public function getErrors(Request $request, $id)
     {
-        return response()->json(['message' => 'getErrors method not implemented']);
+        return $this->executionService->getErrors($id);
     }
 
     public function getWaiting(Request $request)
     {
-        return response()->json(['message' => 'getWaiting method not implemented']);
+        return $this->executionService->getWaiting();
     }
 
     public function continueWaiting(Request $request, $id)
     {
-        return response()->json(['message' => 'continueWaiting method not implemented']);
+        return $this->executionService->continueWaiting($id);
     }
 
     public function cancelWaiting(Request $request, $id)
     {
-        return response()->json(['message' => 'cancelWaiting method not implemented']);
+        return $this->executionService->cancelWaiting($id);
     }
 
     public function getStats(Request $request)
     {
-        return response()->json(['message' => 'getStats method not implemented']);
+        return $this->executionService->getStats();
     }
 
     public function getDailyStats(Request $request)
     {
-        return response()->json(['message' => 'getDailyStats method not implemented']);
+        return $this->executionService->getDailyStats();
     }
 
     public function getStatsByWorkflow(Request $request)
     {
-        return response()->json(['message' => 'getStatsByWorkflow method not implemented']);
+        return $this->executionService->getStatsByWorkflow();
     }
 
     public function getStatsByStatus(Request $request)
     {
-        return response()->json(['message' => 'getStatsByStatus method not implemented']);
+        return $this->executionService->getStatsByStatus();
     }
 
     public function getPerformanceStats(Request $request)
     {
-        return response()->json(['message' => 'getPerformanceStats method not implemented']);
+        return $this->executionService->getPerformanceStats();
     }
 
     public function getQueueStatus(Request $request)
     {
-        return response()->json(['message' => 'getQueueStatus method not implemented']);
+        return $this->executionService->getQueueStatus();
     }
 
     public function getQueueMetrics(Request $request)
     {
-        return response()->json(['message' => 'getQueueMetrics method not implemented']);
+        return $this->executionService->getQueueMetrics();
     }
 
     public function clearQueue(Request $request)
     {
-        return response()->json(['message' => 'clearQueue method not implemented']);
+        return $this->executionService->clearQueue();
     }
 
     public function setQueuePriority(Request $request, $id)
     {
-        return response()->json(['message' => 'setQueuePriority method not implemented']);
+        return $this->executionService->setQueuePriority($id, $request->input('priority'));
     }
 
-    public function executeWorkflow(Request $request, $id)
+    public function executeWorkflow(ExecuteWorkflowRequest $request, $id)
     {
-        return response()->json(['message' => 'executeWorkflow method not implemented']);
+        return $this->executionService->executeWorkflow($id, $request->user()->org_id, $request->user()->id, $request->validated(), 'manual');
     }
 
-    public function testExecuteWorkflow(Request $request, $id)
+    public function testExecuteWorkflow(ExecuteWorkflowRequest $request, $id)
     {
-        return response()->json(['message' => 'testExecuteWorkflow method not implemented']);
+        return $this->executionService->executeWorkflow($id, $request->user()->org_id, $request->user()->id, $request->validated(), 'test');
     }
 }

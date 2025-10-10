@@ -3,67 +3,77 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\StoreWebhookRequest;
+use App\Http\Requests\V1\UpdateWebhookRequest;
+use App\Services\Webhook\WebhookService;
 use Illuminate\Http\Request;
 
 class WebhookController extends Controller
 {
+    protected $webhookService;
+
+    public function __construct(WebhookService $webhookService)
+    {
+        $this->webhookService = $webhookService;
+    }
+
     public function handleIncomingWebhook(Request $request, $workflowId, $path)
     {
-        return response()->json(['message' => 'handleIncomingWebhook method not implemented']);
+        return $this->webhookService->handleIncomingWebhook($workflowId, $path, $request->all());
     }
 
     public function index(Request $request)
     {
-        return response()->json(['message' => 'index method not implemented']);
+        return $this->webhookService->getWebhooksByOrg($request->user()->org_id);
     }
 
-    public function store(Request $request)
+    public function store(StoreWebhookRequest $request)
     {
-        return response()->json(['message' => 'store method not implemented']);
+        return $this->webhookService->createWebhook($request->validated(), $request->user()->org_id);
     }
 
     public function show(Request $request, $id)
     {
-        return response()->json(['message' => 'show method not implemented']);
+        return $this->webhookService->getWebhook($id);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateWebhookRequest $request, $id)
     {
-        return response()->json(['message' => 'update method not implemented']);
+        return $this->webhookService->updateWebhook($id, $request->validated());
     }
 
     public function destroy(Request $request, $id)
     {
-        return response()->json(['message' => 'destroy method not implemented']);
+        return $this->webhookService->deleteWebhook($id);
     }
 
     public function test(Request $request, $id)
     {
-        return response()->json(['message' => 'test method not implemented']);
+        return $this->webhookService->test($id);
     }
 
     public function getTestUrl(Request $request, $id)
     {
-        return response()->json(['message' => 'getTestUrl method not implemented']);
+        return $this->webhookService->getTestUrl($id);
     }
 
     public function getLogs(Request $request, $id)
     {
-        return response()->json(['message' => 'getLogs method not implemented']);
+        return $this->webhookService->getLogs($id);
     }
 
     public function getStats(Request $request, $id)
     {
-        return response()->json(['message' => 'getStats method not implemented']);
+        return $this->webhookService->getStats($id);
     }
 
     public function regenerateToken(Request $request, $id)
     {
-        return response()->json(['message' => 'regenerateToken method not implemented']);
+        return $this->webhookService->regenerateToken($id);
     }
 
     public function updateIpWhitelist(Request $request, $id)
     {
-        return response()->json(['message' => 'updateIpWhitelist method not implemented']);
+        return $this->webhookService->updateIpWhitelist($id, $request->input('ips'));
     }
 }

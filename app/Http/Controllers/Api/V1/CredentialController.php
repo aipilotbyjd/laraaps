@@ -3,92 +3,102 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\StoreCredentialRequest;
+use App\Http\Requests\V1\UpdateCredentialRequest;
+use App\Services\Credential\CredentialService;
 use Illuminate\Http\Request;
 
 class CredentialController extends Controller
 {
-    public function index(Request $request)
+    protected $credentialService;
+
+    public function __construct(CredentialService $credentialService)
     {
-        return response()->json(['message' => 'index method not implemented']);
+        $this->credentialService = $credentialService;
     }
 
-    public function store(Request $request)
+    public function index(Request $request)
     {
-        return response()->json(['message' => 'store method not implemented']);
+        return $this->credentialService->getCredentialsByOrg($request->user()->org_id);
+    }
+
+    public function store(StoreCredentialRequest $request)
+    {
+        return $this->credentialService->createCredential($request->validated(), $request->user()->org_id, $request->user()->id);
     }
 
     public function show(Request $request, $id)
     {
-        return response()->json(['message' => 'show method not implemented']);
+        return $this->credentialService->getCredential($id);
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateCredentialRequest $request, $id)
     {
-        return response()->json(['message' => 'update method not implemented']);
+        return $this->credentialService->updateCredential($id, $request->validated());
     }
 
     public function destroy(Request $request, $id)
     {
-        return response()->json(['message' => 'destroy method not implemented']);
+        return $this->credentialService->deleteCredential($id);
     }
 
     public function getTypes(Request $request)
     {
-        return response()->json(['message' => 'getTypes method not implemented']);
+        return $this->credentialService->getTypes();
     }
 
     public function getTypeSchema(Request $request, $type)
     {
-        return response()->json(['message' => 'getTypeSchema method not implemented']);
+        return $this->credentialService->getTypeSchema($type);
     }
 
     public function test(Request $request, $id)
     {
-        return response()->json(['message' => 'test method not implemented']);
+        return $this->credentialService->test($id);
     }
 
     public function getTestStatus(Request $request, $id)
     {
-        return response()->json(['message' => 'getTestStatus method not implemented']);
+        return $this->credentialService->getTestStatus($id);
     }
 
     public function oauthAuthorize(Request $request, $id)
     {
-        return response()->json(['message' => 'oauthAuthorize method not implemented']);
+        return $this->credentialService->oauthAuthorize($id);
     }
 
     public function oauthCallback(Request $request, $id)
     {
-        return response()->json(['message' => 'oauthCallback method not implemented']);
+        return $this->credentialService->oauthCallback($id, $request->all());
     }
 
     public function oauthRefresh(Request $request, $id)
     {
-        return response()->json(['message' => 'oauthRefresh method not implemented']);
+        return $this->credentialService->oauthRefresh($id);
     }
 
     public function getShares(Request $request, $id)
     {
-        return response()->json(['message' => 'getShares method not implemented']);
+        return $this->credentialService->getShares($id);
     }
 
     public function createShare(Request $request, $id)
     {
-        return response()->json(['message' => 'createShare method not implemented']);
+        return $this->credentialService->createShare($id, $request->input('user_id'));
     }
 
     public function deleteShare(Request $request, $id, $userId)
     {
-        return response()->json(['message' => 'deleteShare method not implemented']);
+        return $this->credentialService->deleteShare($id, $userId);
     }
 
     public function getUsage(Request $request, $id)
     {
-        return response()->json(['message' => 'getUsage method not implemented']);
+        return $this->credentialService->getUsage($id);
     }
 
     public function getWorkflows(Request $request, $id)
     {
-        return response()->json(['message' => 'getWorkflows method not implemented']);
+        return $this->credentialService->getWorkflows($id);
     }
 }

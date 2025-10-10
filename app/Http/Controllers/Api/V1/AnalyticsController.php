@@ -3,112 +3,120 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Analytics\AnalyticsService;
 use Illuminate\Http\Request;
 
 class AnalyticsController extends Controller
 {
+    protected $analyticsService;
+
+    public function __construct(AnalyticsService $analyticsService)
+    {
+        $this->analyticsService = $analyticsService;
+    }
+
     public function getDashboard(Request $request)
     {
-        return response()->json(['message' => 'getDashboard method not implemented']);
+        return $this->analyticsService->getDashboard();
     }
 
     public function getOverview(Request $request)
     {
-        return response()->json(['message' => 'getOverview method not implemented']);
+        return $this->analyticsService->getOverview();
     }
 
     public function getWorkflowPerformance(Request $request)
     {
-        return response()->json(['message' => 'getWorkflowPerformance method not implemented']);
+        return $this->analyticsService->getWorkflowPerformance();
     }
 
     public function getWorkflowSuccessRate(Request $request)
     {
-        return response()->json(['message' => 'getWorkflowSuccessRate method not implemented']);
+        return $this->analyticsService->getWorkflowSuccessRate();
     }
 
     public function getWorkflowExecutionTime(Request $request)
     {
-        return response()->json(['message' => 'getWorkflowExecutionTime method not implemented']);
+        return $this->analyticsService->getWorkflowExecutionTime();
     }
 
     public function getMostUsedWorkflows(Request $request)
     {
-        return response()->json(['message' => 'getMostUsedWorkflows method not implemented']);
+        return $this->analyticsService->getMostUsedWorkflows();
     }
 
     public function getWorkflowMetrics(Request $request, $id)
     {
-        return response()->json(['message' => 'getWorkflowMetrics method not implemented']);
+        return $this->analyticsService->getWorkflowMetrics($id);
     }
 
     public function getExecutionTimeline(Request $request)
     {
-        return response()->json(['message' => 'getExecutionTimeline method not implemented']);
+        return $this->analyticsService->getExecutionTimeline();
     }
 
     public function getExecutionStatusBreakdown(Request $request)
     {
-        return response()->json(['message' => 'getExecutionStatusBreakdown method not implemented']);
+        return $this->analyticsService->getExecutionStatusBreakdown();
     }
 
     public function getExecutionErrorRate(Request $request)
     {
-        return response()->json(['message' => 'getExecutionErrorRate method not implemented']);
+        return $this->analyticsService->getExecutionErrorRate();
     }
 
     public function getExecutionResourceUsage(Request $request)
     {
-        return response()->json(['message' => 'getExecutionResourceUsage method not implemented']);
+        return $this->analyticsService->getExecutionResourceUsage();
     }
 
     public function getNodeUsage(Request $request)
     {
-        return response()->json(['message' => 'getNodeUsage method not implemented']);
+        return $this->analyticsService->getNodeUsage();
     }
 
     public function getNodePerformance(Request $request)
     {
-        return response()->json(['message' => 'getNodePerformance method not implemented']);
+        return $this->analyticsService->getNodePerformance();
     }
 
     public function getNodeErrorRate(Request $request)
     {
-        return response()->json(['message' => 'getNodeErrorRate method not implemented']);
+        return $this->analyticsService->getNodeErrorRate();
     }
 
     public function getCostBreakdown(Request $request)
     {
-        return response()->json(['message' => 'getCostBreakdown method not implemented']);
+        return $this->analyticsService->getCostBreakdown();
     }
 
     public function getCostTrends(Request $request)
     {
-        return response()->json(['message' => 'getCostTrends method not implemented']);
+        return $this->analyticsService->getCostTrends();
     }
 
     public function getCostByWorkflow(Request $request)
     {
-        return response()->json(['message' => 'getCostByWorkflow method not implemented']);
+        return $this->analyticsService->getCostByWorkflow();
     }
 
     public function getReports(Request $request)
     {
-        return response()->json(['message' => 'getReports method not implemented']);
+        return $this->analyticsService->getReports();
     }
 
     public function createReport(Request $request)
     {
-        return response()->json(['message' => 'createReport method not implemented']);
+        return $this->analyticsService->createReport($request->all());
     }
 
     public function getReport(Request $request, $id)
     {
-        return response()->json(['message' => 'getReport method not implemented']);
+        return $this->analyticsService->getReport($id);
     }
 
     public function exportReport(Request $request, $id)
     {
-        return response()->json(['message' => 'exportReport method not implemented']);
+        return $this->analyticsService->exportReport($id);
     }
 }
