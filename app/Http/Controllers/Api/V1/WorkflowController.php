@@ -295,9 +295,9 @@ class WorkflowController extends Controller
         return $this->success($this->workflowService->validateWorkflow($id));
     }
 
-    public function testRun(string $id)
+    public function testRun(Request $request, string $id)
     {
-        return $this->success($this->workflowService->testRun($id));
+        return $this->success($this->workflowService->testRun($id, $request->user()));
     }
 
     public function healthCheck(string $id)

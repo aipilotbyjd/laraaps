@@ -1,0 +1,55 @@
+{
+	"id": "n8n-clone-env",
+	"name": "n8n Clone - Local Environment",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/api/v1",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "webhook_base_url",
+			"value": "http://localhost/api/webhook",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "org_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "workflow_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "execution_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "credential_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "webhook_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment"
+}

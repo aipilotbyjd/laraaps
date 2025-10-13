@@ -1,0 +1,2082 @@
+{
+	"info": {
+		"_postman_id": "n8n-clone-api-collection",
+		"name": "n8n Clone - Complete API Collection",
+		"description": "Complete API collection for n8n Clone with authentication, workflows, executions, analytics, and more.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "webhook_base_url",
+			"value": "http://localhost/api/webhook",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "org_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "workflow_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "execution_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "credential_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "webhook_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Authentication",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', jsonData.token);",
+									"    pm.collectionVariables.set('org_id', jsonData.user.org_id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', jsonData.token);",
+									"    pm.collectionVariables.set('org_id', jsonData.user.org_id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "me"]
+						}
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "logout"]
+						}
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"current_password\": \"password123\",\n    \"new_password\": \"newpassword123\",\n    \"new_password_confirmation\": \"newpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/change-password",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "change-password"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Workflows",
+			"item": [
+				{
+					"name": "List Workflows",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows",
+							"host": ["{{base_url}}"],
+							"path": ["workflows"]
+						}
+					}
+				},
+				{
+					"name": "Create Workflow",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('workflow_id', jsonData.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My First Workflow\",\n    \"description\": \"Test workflow\",\n    \"active\": false,\n    \"nodes\": [\n        {\n            \"id\": \"node-1\",\n            \"type\": \"start\",\n            \"position\": {\"x\": 100, \"y\": 100},\n            \"properties\": {}\n        },\n        {\n            \"id\": \"node-2\",\n            \"type\": \"http-request\",\n            \"position\": {\"x\": 300, \"y\": 100},\n            \"properties\": {\n                \"url\": \"https://api.github.com/users/octocat\",\n                \"method\": \"GET\"\n            }\n        }\n    ],\n    \"connections\": [\n        {\n            \"source\": \"node-1\",\n            \"target\": \"node-2\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/workflows",
+							"host": ["{{base_url}}"],
+							"path": ["workflows"]
+						}
+					}
+				},
+				{
+					"name": "Get Workflow",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Workflow",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Workflow Name\",\n    \"description\": \"Updated description\",\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Workflow",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Activate Workflow",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/activate",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "activate"]
+						}
+					}
+				},
+				{
+					"name": "Deactivate Workflow",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/deactivate",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "deactivate"]
+						}
+					}
+				},
+				{
+					"name": "Duplicate Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/duplicate",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "duplicate"]
+						}
+					}
+				},
+				{
+					"name": "Validate Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/validate",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "validate"]
+						}
+					}
+				},
+				{
+					"name": "Test Run Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"test_data\": {\n        \"input\": \"test value\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/test-run",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "test-run"]
+						}
+					}
+				},
+				{
+					"name": "Execute Workflow",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 202) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.execution_id) {",
+									"        pm.collectionVariables.set('execution_id', jsonData.execution_id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"trigger_data\": {\n        \"user_id\": \"123\",\n        \"action\": \"test\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/execute",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "execute"]
+						}
+					}
+				},
+				{
+					"name": "Import Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Imported Workflow\",\n    \"nodes\": [],\n    \"connections\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/workflows/import",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "import"]
+						}
+					}
+				},
+				{
+					"name": "Export Workflow",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/export",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "export"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Executions",
+			"item": [
+				{
+					"name": "List Executions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions",
+							"host": ["{{base_url}}"],
+							"path": ["executions"]
+						}
+					}
+				},
+				{
+					"name": "Get Execution",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Execution",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Stop Execution",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}/stop",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}", "stop"]
+						}
+					}
+				},
+				{
+					"name": "Retry Execution",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}/retry",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}", "retry"]
+						}
+					}
+				},
+				{
+					"name": "Resume Execution",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}/resume",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}", "resume"]
+						}
+					}
+				},
+				{
+					"name": "Get Execution Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}/logs",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}", "logs"]
+						}
+					}
+				},
+				{
+					"name": "Get Execution Timeline",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}/timeline",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}", "timeline"]
+						}
+					}
+				},
+				{
+					"name": "Get Execution Data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}/data",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}", "data"]
+						}
+					}
+				},
+				{
+					"name": "Get Execution Errors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/{{execution_id}}/errors",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "{{execution_id}}", "errors"]
+						}
+					}
+				},
+				{
+					"name": "Get Execution Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/stats",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "stats"]
+						}
+					}
+				},
+				{
+					"name": "Get Waiting Executions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/executions/waiting",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "waiting"]
+						}
+					}
+				},
+				{
+					"name": "Bulk Delete Executions",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\"execution-id-1\", \"execution-id-2\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/executions/bulk-delete",
+							"host": ["{{base_url}}"],
+							"path": ["executions", "bulk-delete"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Credentials",
+			"item": [
+				{
+					"name": "List Credentials",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials",
+							"host": ["{{base_url}}"],
+							"path": ["credentials"]
+						}
+					}
+				},
+				{
+					"name": "Create Credential",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('credential_id', jsonData.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"GitHub API\",\n    \"type\": \"http_bearer\",\n    \"data\": {\n        \"token\": \"ghp_xxxxxxxxxxxxxxxxxxxx\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/credentials",
+							"host": ["{{base_url}}"],
+							"path": ["credentials"]
+						}
+					}
+				},
+				{
+					"name": "Get Credential",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/{{credential_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "{{credential_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Credential",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Credential Name\",\n    \"data\": {\n        \"token\": \"new_token_value\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/credentials/{{credential_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "{{credential_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Credential",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/{{credential_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "{{credential_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Get Credential Types",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/types",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "types"]
+						}
+					}
+				},
+				{
+					"name": "Get Credential Type Schema",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/types/http_bearer/schema",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "types", "http_bearer", "schema"]
+						}
+					}
+				},
+				{
+					"name": "Test Credential",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/{{credential_id}}/test",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "{{credential_id}}", "test"]
+						}
+					}
+				},
+				{
+					"name": "OAuth Authorize",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/{{credential_id}}/oauth/authorize",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "{{credential_id}}", "oauth", "authorize"]
+						}
+					}
+				},
+				{
+					"name": "OAuth Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/{{credential_id}}/oauth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["credentials", "{{credential_id}}", "oauth", "refresh"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Webhooks",
+			"item": [
+				{
+					"name": "List Webhooks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks"]
+						}
+					}
+				},
+				{
+					"name": "Create Webhook",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('webhook_id', jsonData.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"workflow_id\": \"{{workflow_id}}\",\n    \"path\": \"my-webhook\",\n    \"method\": \"POST\",\n    \"auth_type\": \"bearer\",\n    \"auth_config\": {\n        \"token\": \"my_secret_token\"\n    },\n    \"active\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/webhooks",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks"]
+						}
+					}
+				},
+				{
+					"name": "Get Webhook",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Update Webhook",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"active\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Delete Webhook",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}"]
+						}
+					}
+				},
+				{
+					"name": "Test Webhook",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}/test",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}", "test"]
+						}
+					}
+				},
+				{
+					"name": "Get Webhook Test URL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}/test-url",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}", "test-url"]
+						}
+					}
+				},
+				{
+					"name": "Get Webhook Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}/logs",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}", "logs"]
+						}
+					}
+				},
+				{
+					"name": "Get Webhook Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}/stats",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}", "stats"]
+						}
+					}
+				},
+				{
+					"name": "Regenerate Webhook Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}/regenerate-token",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}", "regenerate-token"]
+						}
+					}
+				},
+				{
+					"name": "Update IP Whitelist",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ips\": [\"192.168.1.1\", \"10.0.0.0/8\", \"172.16.*.*\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/webhooks/{{webhook_id}}/ip-whitelist",
+							"host": ["{{base_url}}"],
+							"path": ["webhooks", "{{webhook_id}}", "ip-whitelist"]
+						}
+					}
+				},
+				{
+					"name": "Trigger Webhook (Public)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "my_secret_token",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user_id\": \"123\",\n    \"event\": \"user.created\",\n    \"data\": {\n        \"email\": \"user@example.com\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{webhook_base_url}}/{{workflow_id}}/my-webhook",
+							"host": ["{{webhook_base_url}}"],
+							"path": ["{{workflow_id}}", "my-webhook"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Nodes",
+			"item": [
+				{
+					"name": "List Nodes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/nodes",
+							"host": ["{{base_url}}"],
+							"path": ["nodes"]
+						}
+					}
+				},
+				{
+					"name": "Get Node Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/nodes/categories",
+							"host": ["{{base_url}}"],
+							"path": ["nodes", "categories"]
+						}
+					}
+				},
+				{
+					"name": "Get Node Tags",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/nodes/tags",
+							"host": ["{{base_url}}"],
+							"path": ["nodes", "tags"]
+						}
+					}
+				},
+				{
+					"name": "Get Node Schema",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/nodes/http-request/schema",
+							"host": ["{{base_url}}"],
+							"path": ["nodes", "http-request", "schema"]
+						}
+					}
+				},
+				{
+					"name": "Test Node Configuration",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"url\": \"https://api.github.com\",\n    \"method\": \"GET\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/nodes/http-request/test",
+							"host": ["{{base_url}}"],
+							"path": ["nodes", "http-request", "test"]
+						}
+					}
+				},
+				{
+					"name": "Get Node Usage Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/nodes/usage/stats",
+							"host": ["{{base_url}}"],
+							"path": ["nodes", "usage", "stats"]
+						}
+					}
+				},
+				{
+					"name": "Validate Node Config",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"url\": \"https://api.github.com\",\n    \"method\": \"GET\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/nodes/http-request/validate-config",
+							"host": ["{{base_url}}"],
+							"path": ["nodes", "http-request", "validate-config"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "7. Templates",
+			"item": [
+				{
+					"name": "List Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/templates",
+							"host": ["{{base_url}}"],
+							"path": ["templates"]
+						}
+					}
+				},
+				{
+					"name": "Get Featured Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/templates/featured",
+							"host": ["{{base_url}}"],
+							"path": ["templates", "featured"]
+						}
+					}
+				},
+				{
+					"name": "Get Trending Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/templates/trending",
+							"host": ["{{base_url}}"],
+							"path": ["templates", "trending"]
+						}
+					}
+				},
+				{
+					"name": "Search Templates",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/templates/search?q=github&category=automation",
+							"host": ["{{base_url}}"],
+							"path": ["templates", "search"],
+							"query": [
+								{"key": "q", "value": "github"},
+								{"key": "category", "value": "automation"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Template",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/templates/1",
+							"host": ["{{base_url}}"],
+							"path": ["templates", "1"]
+						}
+					}
+				},
+				{
+					"name": "Use Template",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/templates/1/use",
+							"host": ["{{base_url}}"],
+							"path": ["templates", "1", "use"]
+						}
+					}
+				},
+				{
+					"name": "Publish Template",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"workflow_id\": \"{{workflow_id}}\",\n    \"name\": \"My Template\",\n    \"description\": \"A useful template\",\n    \"category\": \"automation\",\n    \"tags\": [\"api\", \"webhook\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/templates/publish",
+							"host": ["{{base_url}}"],
+							"path": ["templates", "publish"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "8. Analytics",
+			"item": [
+				{
+					"name": "Get Dashboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/dashboard",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "dashboard"]
+						}
+					}
+				},
+				{
+					"name": "Get Overview",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/overview",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "overview"]
+						}
+					}
+				},
+				{
+					"name": "Workflow Performance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/workflows/performance",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "workflows", "performance"]
+						}
+					}
+				},
+				{
+					"name": "Workflow Success Rate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/workflows/success-rate",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "workflows", "success-rate"]
+						}
+					}
+				},
+				{
+					"name": "Workflow Execution Time",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/workflows/execution-time",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "workflows", "execution-time"]
+						}
+					}
+				},
+				{
+					"name": "Most Used Workflows",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/workflows/most-used?limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "workflows", "most-used"],
+							"query": [{"key": "limit", "value": "10"}]
+						}
+					}
+				},
+				{
+					"name": "Workflow Metrics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/workflows/{{workflow_id}}/metrics?period=30d",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "workflows", "{{workflow_id}}", "metrics"],
+							"query": [{"key": "period", "value": "30d"}]
+						}
+					}
+				},
+				{
+					"name": "Execution Timeline",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/executions/timeline?days=30",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "executions", "timeline"],
+							"query": [{"key": "days", "value": "30"}]
+						}
+					}
+				},
+				{
+					"name": "Execution Status Breakdown",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/executions/status-breakdown",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "executions", "status-breakdown"]
+						}
+					}
+				},
+				{
+					"name": "Execution Error Rate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/executions/error-rate?days=30",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "executions", "error-rate"],
+							"query": [{"key": "days", "value": "30"}]
+						}
+					}
+				},
+				{
+					"name": "Execution Resource Usage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/executions/resource-usage",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "executions", "resource-usage"]
+						}
+					}
+				},
+				{
+					"name": "Node Usage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/nodes/usage",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "nodes", "usage"]
+						}
+					}
+				},
+				{
+					"name": "Node Performance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/nodes/performance",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "nodes", "performance"]
+						}
+					}
+				},
+				{
+					"name": "Node Error Rate",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/nodes/error-rate",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "nodes", "error-rate"]
+						}
+					}
+				},
+				{
+					"name": "Get Reports",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/analytics/reports",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "reports"]
+						}
+					}
+				},
+				{
+					"name": "Create Report",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Monthly Performance Report\",\n    \"type\": \"performance\",\n    \"period\": \"monthly\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/analytics/reports",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "reports"]
+						}
+					}
+				},
+				{
+					"name": "Export Report",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"pdf\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/analytics/reports/1/export",
+							"host": ["{{base_url}}"],
+							"path": ["analytics", "reports", "1", "export"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "9. Variables & Environment",
+			"item": [
+				{
+					"name": "List Variables",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/variables",
+							"host": ["{{base_url}}"],
+							"path": ["variables"]
+						}
+					}
+				},
+				{
+					"name": "Create Variable",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"api_url\",\n    \"value\": \"https://api.example.com\",\n    \"type\": \"string\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/variables",
+							"host": ["{{base_url}}"],
+							"path": ["variables"]
+						}
+					}
+				},
+				{
+					"name": "Update Variable",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"value\": \"https://api.newurl.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/variables/1",
+							"host": ["{{base_url}}"],
+							"path": ["variables", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Variable",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/variables/1",
+							"host": ["{{base_url}}"],
+							"path": ["variables", "1"]
+						}
+					}
+				},
+				{
+					"name": "List Secrets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/secrets",
+							"host": ["{{base_url}}"],
+							"path": ["secrets"]
+						}
+					}
+				},
+				{
+					"name": "Create Secret",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"api_secret_key\",\n    \"value\": \"super_secret_value_encrypted\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/secrets",
+							"host": ["{{base_url}}"],
+							"path": ["secrets"]
+						}
+					}
+				},
+				{
+					"name": "Delete Secret",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/secrets/1",
+							"host": ["{{base_url}}"],
+							"path": ["secrets", "1"]
+						}
+					}
+				},
+				{
+					"name": "List Environments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/environments",
+							"host": ["{{base_url}}"],
+							"path": ["environments"]
+						}
+					}
+				},
+				{
+					"name": "Create Environment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Production\",\n    \"variables\": {\n        \"api_url\": \"https://api.prod.example.com\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/environments",
+							"host": ["{{base_url}}"],
+							"path": ["environments"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "10. Notifications",
+			"item": [
+				{
+					"name": "List Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications",
+							"host": ["{{base_url}}"],
+							"path": ["notifications"]
+						}
+					}
+				},
+				{
+					"name": "Mark as Read",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/1/read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "1", "read"]
+						}
+					}
+				},
+				{
+					"name": "Mark All as Read",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/mark-all-read",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "mark-all-read"]
+						}
+					}
+				},
+				{
+					"name": "Get Notification Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/notifications/settings",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "settings"]
+						}
+					}
+				},
+				{
+					"name": "Update Notification Settings",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email_enabled\": true,\n    \"slack_enabled\": false,\n    \"workflow_errors\": true,\n    \"workflow_success\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/notifications/settings",
+							"host": ["{{base_url}}"],
+							"path": ["notifications", "settings"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "11. Organizations",
+			"item": [
+				{
+					"name": "List Organizations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": ["{{base_url}}"],
+							"path": ["organizations"]
+						}
+					}
+				},
+				{
+					"name": "Create Organization",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"My Company\",\n    \"slug\": \"my-company\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": ["{{base_url}}"],
+							"path": ["organizations"]
+						}
+					}
+				},
+				{
+					"name": "Get Organization Members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}/members",
+							"host": ["{{base_url}}"],
+							"path": ["organizations", "{{org_id}}", "members"]
+						}
+					}
+				},
+				{
+					"name": "Add Member",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"role\": \"member\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}/members",
+							"host": ["{{base_url}}"],
+							"path": ["organizations", "{{org_id}}", "members"]
+						}
+					}
+				},
+				{
+					"name": "Remove Member",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}/members/123",
+							"host": ["{{base_url}}"],
+							"path": ["organizations", "{{org_id}}", "members", "123"]
+						}
+					}
+				},
+				{
+					"name": "Get Organization Usage",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}/usage",
+							"host": ["{{base_url}}"],
+							"path": ["organizations", "{{org_id}}", "usage"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "12. AI Features",
+			"item": [
+				{
+					"name": "Suggest Nodes",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"context\": \"I want to fetch data from GitHub API and send it to Slack\",\n    \"current_nodes\": [\"start\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ai/suggest-nodes",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "suggest-nodes"]
+						}
+					}
+				},
+				{
+					"name": "Generate Workflow from Prompt",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"prompt\": \"Create a workflow that sends me an email every time a new issue is created in my GitHub repository\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ai/generate-workflow",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "generate-workflow"]
+						}
+					}
+				},
+				{
+					"name": "Optimize Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"workflow_id\": \"{{workflow_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ai/optimize-workflow",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "optimize-workflow"]
+						}
+					}
+				},
+				{
+					"name": "Explain Error",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"error\": \"TypeError: Cannot read property 'data' of undefined\",\n    \"context\": {\n        \"node_type\": \"http-request\",\n        \"execution_id\": \"{{execution_id}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ai/explain-error",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "explain-error"]
+						}
+					}
+				},
+				{
+					"name": "Generate Expression",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"prompt\": \"Format the date to YYYY-MM-DD\",\n    \"available_data\": {\n        \"timestamp\": \"2024-01-15T10:30:00Z\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ai/generate-expression",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "generate-expression"]
+						}
+					}
+				},
+				{
+					"name": "AI Chat",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"How do I filter an array of objects by a specific field?\",\n    \"context\": {\n        \"workflow_id\": \"{{workflow_id}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/ai/chat",
+							"host": ["{{base_url}}"],
+							"path": ["ai", "chat"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "13. Admin",
+			"item": [
+				{
+					"name": "Get System Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/system/health",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "system", "health"]
+						}
+					}
+				},
+				{
+					"name": "Get System Metrics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/system/metrics",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "system", "metrics"]
+						}
+					}
+				},
+				{
+					"name": "List All Users (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users"]
+						}
+					}
+				},
+				{
+					"name": "Suspend User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/users/123/suspend",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "users", "123", "suspend"]
+						}
+					}
+				},
+				{
+					"name": "Get Audit Logs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/audit-logs",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "audit-logs"]
+						}
+					}
+				},
+				{
+					"name": "Get System Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/config",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "config"]
+						}
+					}
+				},
+				{
+					"name": "Update System Config",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"max_executions_per_workflow\": 1000,\n    \"execution_timeout_seconds\": 300\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/admin/config",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "config"]
+						}
+					}
+				},
+				{
+					"name": "Create Backup",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/admin/backup",
+							"host": ["{{base_url}}"],
+							"path": ["admin", "backup"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "14. Storage",
+			"item": [
+				{
+					"name": "Upload File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "folder",
+									"value": "uploads",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/storage/upload",
+							"host": ["{{base_url}}"],
+							"path": ["storage", "upload"]
+						}
+					}
+				},
+				{
+					"name": "List Files",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/storage/files",
+							"host": ["{{base_url}}"],
+							"path": ["storage", "files"]
+						}
+					}
+				},
+				{
+					"name": "Download File",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/storage/files/1/download",
+							"host": ["{{base_url}}"],
+							"path": ["storage", "files", "1", "download"]
+						}
+					}
+				},
+				{
+					"name": "Delete File",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/storage/files/1",
+							"host": ["{{base_url}}"],
+							"path": ["storage", "files", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "15. Collaboration",
+			"item": [
+				{
+					"name": "Get Workflow Presence",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/presence",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "presence"]
+						}
+					}
+				},
+				{
+					"name": "Join Workflow Session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/presence/join",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "presence", "join"]
+						}
+					}
+				},
+				{
+					"name": "Leave Workflow Session",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/presence/leave",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "presence", "leave"]
+						}
+					}
+				},
+				{
+					"name": "Lock Workflow for Editing",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/lock",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "lock"]
+						}
+					}
+				},
+				{
+					"name": "Unlock Workflow",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/workflows/{{workflow_id}}/unlock",
+							"host": ["{{base_url}}"],
+							"path": ["workflows", "{{workflow_id}}", "unlock"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

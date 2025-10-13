@@ -289,37 +289,76 @@ class WorkflowService
 
     public function getDependencies(string $workflowId)
     {
-        // Mocked response
-        return [];
+        $subWorkflows = WorkflowSubWorkflow::where('workflow_id', $workflowId)->get();
+
+        $dependencies = [];
+        foreach ($subWorkflows as $subWorkflow) {
+            $dependencies[] = $this->getWorkflow($subWorkflow->sub_workflow_id);
+        }
+
+        return $dependencies;
     }
 
     public function getDependents(string $workflowId)
     {
-        // Mocked response
-        return [];
+        $superWorkflows = WorkflowSubWorkflow::where('sub_workflow_id', $workflowId)->get();
+
+        $dependents = [];
+        foreach ($superWorkflows as $superWorkflow) {
+            $dependents[] = $this->getWorkflow($superWorkflow->workflow_id);
+        }
+
+        return $dependents;
     }
 
     public function getImpactAnalysis(string $workflowId)
     {
-        // Mocked response
-        return [];
+        $dependents = $this->getDependents($workflowId);
+        $impact = $dependents;
+
+        foreach ($dependents as $dependent) {
+            $impact = array_merge($impact, $this->getImpactAnalysis($dependent->id));
+        }
+
+        return $impact;
     }
 
     public function validateWorkflow(string $workflowId)
     {
-        // Mocked response
+        $workflow = $this->getWorkflow($workflowId);
+
+        if (! $workflow) {
+            return ['status' => 'error', 'message' => 'Workflow not found.'];
+        }
+
+        $definition = $workflow->definition;
+
+        if (! isset($definition['nodes']) || ! is_array($definition['nodes'])) {
+            return ['status' => 'error', 'message' => 'Workflow must have nodes.'];
+        }
+
+        if (! isset($definition['connections']) || ! is_array($definition['connections'])) {
+            return ['status' => 'error', 'message' => 'Workflow must have connections.'];
+        }
+
         return ['status' => 'success', 'message' => 'Workflow is valid.'];
     }
 
-    public function testRun(string $workflowId)
+    public function testRun(string $workflowId, $user)
     {
-        // Mocked response
-        return ['status' => 'success', 'message' => 'Test run completed successfully.'];
+        $executionService = app(ExecutionService::class);
+
+        return $executionService->runWorkflow($workflowId, $user->org_id, $user->id, [], 'test');
     }
 
     public function healthCheck(string $workflowId)
     {
-        // Mocked response
+        $validation = $this->validateWorkflow($workflowId);
+
+        if ($validation['status'] === 'error') {
+            return ['status' => 'error', 'message' => $validation['message']];
+        }
+
         return ['status' => 'success', 'message' => 'Workflow health is good.'];
     }
 }

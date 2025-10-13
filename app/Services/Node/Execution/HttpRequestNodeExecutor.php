@@ -2,27 +2,69 @@
 
 namespace App\Services\Node\Execution;
 
+use App\Services\Credential\CredentialResolver;
+use App\Services\Node\Execution\Traits\ResolvesVariables;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class HttpRequestNodeExecutor extends NodeExecutor
 {
+    use ResolvesVariables;
+
     public function execute(array $inputData = [])
     {
         $properties = $this->node->properties;
+        $orgId = $this->workflowExecution->org_id;
 
-        // Simple templating: replace placeholders like {{ $json.key }}
-        $url = $this->replacePlaceholders($properties['url'], $inputData);
-        $method = $properties['method'] ?? 'get';
-        $headers = $this->replacePlaceholders($properties['headers'] ?? [], $inputData);
-        $body = $this->replacePlaceholders($properties['body'] ?? [], $inputData);
+        $url = $this->resolveVariables($properties['url'] ?? '', $orgId);
+        $url = $this->replacePlaceholders($url, $inputData);
 
-        $response = Http::withHeaders($headers)->$method($url, $body);
+        $method = strtolower($properties['method'] ?? 'get');
 
-        return [
-            'status' => $response->status(),
-            'headers' => $response->headers(),
-            'body' => $response->json() ?? $response->body(),
-        ];
+        $headers = $this->resolveVariables($properties['headers'] ?? [], $orgId);
+        $headers = $this->replacePlaceholders($headers, $inputData);
+
+        $body = $this->resolveVariables($properties['body'] ?? [], $orgId);
+        $body = $this->replacePlaceholders($body, $inputData);
+
+        $credentialId = $properties['credential_id'] ?? null;
+
+        Log::debug('HTTP Request', [
+            'url' => $url,
+            'method' => $method,
+            'has_credential' => ! empty($credentialId),
+        ]);
+
+        $credentials = CredentialResolver::resolveForHttp($credentialId);
+        $headers = array_merge($headers, $credentials['headers']);
+
+        $httpClient = Http::withHeaders($headers);
+
+        if ($credentials['auth']) {
+            $httpClient = $httpClient->withBasicAuth($credentials['auth'][0], $credentials['auth'][1]);
+        }
+
+        if (isset($properties['timeout'])) {
+            $httpClient = $httpClient->timeout($properties['timeout']);
+        }
+
+        try {
+            $response = $httpClient->$method($url, $body);
+
+            return [
+                'status' => $response->status(),
+                'statusText' => $response->reason(),
+                'headers' => $response->headers(),
+                'body' => $response->json() ?? $response->body(),
+            ];
+        } catch (\Exception $e) {
+            Log::error('HTTP Request failed', [
+                'url' => $url,
+                'error' => $e->getMessage(),
+            ]);
+
+            throw new \Exception("HTTP Request failed: {$e->getMessage()}");
+        }
     }
 
     private function replacePlaceholders($data, array $inputData)

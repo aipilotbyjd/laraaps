@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('credentials', function (Blueprint $table) {
-            $table->uuid('id')->primary()->defaultRaw('gen_random_uuid()');
+            $table->uuid('id')->primary();
             $table->uuid('org_id')->nullable();
             $table->uuid('user_id')->nullable();
             $table->string('name', 255);

@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -12,14 +13,27 @@ class WorkflowEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $emailContent;
+    public $emailBody;
+
+    public $emailSubject;
+
+    public $fromEmail;
+
+    public $fromName;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($emailContent)
-    {
-        $this->emailContent = $emailContent;
+    public function __construct(
+        string $subject = 'Workflow Email',
+        string $body = '',
+        ?string $from = null,
+        ?string $fromName = null
+    ) {
+        $this->emailSubject = $subject;
+        $this->emailBody = $body;
+        $this->fromEmail = $from;
+        $this->fromName = $fromName;
     }
 
     /**
@@ -27,9 +41,15 @@ class WorkflowEmail extends Mailable
      */
     public function envelope(): Envelope
     {
-        return new Envelope(
-            subject: 'Workflow Email',
+        $envelope = new Envelope(
+            subject: $this->emailSubject,
         );
+
+        if ($this->fromEmail) {
+            $envelope->from(new Address($this->fromEmail, $this->fromName ?? ''));
+        }
+
+        return $envelope;
     }
 
     /**
@@ -39,6 +59,9 @@ class WorkflowEmail extends Mailable
     {
         return new Content(
             view: 'emails.workflow',
+            with: [
+                'body' => $this->emailBody,
+            ],
         );
     }
 

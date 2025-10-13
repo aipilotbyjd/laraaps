@@ -58,61 +58,143 @@ class NodeService
 
     public function publishCustomNode(string $id)
     {
-        // Mocked response
-        return ['status' => 'success', 'message' => 'Node published successfully.'];
+        $node = Node::find($id);
+
+        if (! $node || ! $node->is_custom) {
+            return ['status' => 'error', 'message' => 'Custom node not found'];
+        }
+
+        $node->published = true;
+        $node->save();
+
+        return ['status' => 'success', 'message' => 'Node published successfully'];
     }
 
     public function getCategories()
     {
-        // Mocked response
-        return [];
+        return [
+            ['id' => 'trigger', 'name' => 'Triggers', 'icon' => 'zap'],
+            ['id' => 'action', 'name' => 'Actions', 'icon' => 'play'],
+            ['id' => 'logic', 'name' => 'Logic', 'icon' => 'git-branch'],
+            ['id' => 'data', 'name' => 'Data Transform', 'icon' => 'shuffle'],
+            ['id' => 'database', 'name' => 'Database', 'icon' => 'database'],
+            ['id' => 'communication', 'name' => 'Communication', 'icon' => 'message-square'],
+            ['id' => 'utility', 'name' => 'Utilities', 'icon' => 'tool'],
+        ];
     }
 
     public function getTags()
     {
-        // Mocked response
-        return [];
+        return [
+            'popular', 'new', 'advanced', 'basic',
+            'http', 'email', 'database', 'file',
+            'json', 'xml', 'api', 'webhook',
+        ];
     }
 
     public function getUsageStats()
     {
-        // Mocked response
-        return [];
+        $nodes = Node::where('is_custom', false)->get();
+
+        return $nodes->map(function ($node) {
+            return [
+                'type' => $node->type,
+                'name' => $node->name,
+                'usage_count' => 0,
+            ];
+        });
     }
 
     public function getSchema(string $type)
     {
-        // Mocked response
-        return [];
+        $schemas = [
+            'http-request' => [
+                'properties' => [
+                    ['name' => 'url', 'type' => 'string', 'required' => true],
+                    ['name' => 'method', 'type' => 'select', 'options' => ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'], 'default' => 'GET'],
+                    ['name' => 'headers', 'type' => 'keyvalue', 'required' => false],
+                    ['name' => 'body', 'type' => 'json', 'required' => false],
+                    ['name' => 'credential_id', 'type' => 'credential', 'required' => false],
+                    ['name' => 'timeout', 'type' => 'number', 'default' => 30],
+                ],
+            ],
+            'email' => [
+                'properties' => [
+                    ['name' => 'to', 'type' => 'string', 'required' => true],
+                    ['name' => 'subject', 'type' => 'string', 'required' => true],
+                    ['name' => 'body', 'type' => 'text', 'required' => true],
+                    ['name' => 'credential_id', 'type' => 'credential', 'required' => false],
+                ],
+            ],
+            'if' => [
+                'properties' => [
+                    ['name' => 'condition', 'type' => 'expression', 'required' => true],
+                ],
+            ],
+            'loop' => [
+                'properties' => [
+                    ['name' => 'mode', 'type' => 'select', 'options' => ['forEach', 'times'], 'default' => 'forEach'],
+                    ['name' => 'items_key', 'type' => 'string', 'required' => false],
+                    ['name' => 'times', 'type' => 'number', 'required' => false],
+                ],
+            ],
+            'database' => [
+                'properties' => [
+                    ['name' => 'operation', 'type' => 'select', 'options' => ['select', 'insert', 'update', 'delete'], 'required' => true],
+                    ['name' => 'query', 'type' => 'text', 'required' => true],
+                    ['name' => 'credential_id', 'type' => 'credential', 'required' => true],
+                ],
+            ],
+        ];
+
+        return $schemas[$type] ?? ['properties' => []];
     }
 
     public function testNode(string $type, array $config)
     {
-        // Mocked response
-        return ['status' => 'success', 'message' => 'Node test completed successfully.'];
+        try {
+            $schema = $this->getSchema($type);
+
+            if (empty($schema['properties'])) {
+                return ['status' => 'error', 'message' => 'Unknown node type'];
+            }
+
+            foreach ($schema['properties'] as $prop) {
+                if ($prop['required'] && ! isset($config[$prop['name']])) {
+                    return [
+                        'status' => 'error',
+                        'message' => "Missing required property: {$prop['name']}",
+                    ];
+                }
+            }
+
+            return ['status' => 'success', 'message' => 'Node configuration is valid'];
+        } catch (\Exception $e) {
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
     }
 
     public function validateConfig(string $type, array $config)
     {
-        // Mocked response
-        return ['status' => 'success', 'message' => 'Configuration is valid.'];
+        return $this->testNode($type, $config);
     }
 
     public function getDynamicParameters(string $type)
     {
-        // Mocked response
         return [];
     }
 
     public function resolveParameters(string $type, array $parameters)
     {
-        // Mocked response
-        return [];
+        return $parameters;
     }
 
     public function getNodeUsage(string $type)
     {
-        // Mocked response
-        return [];
+        return [
+            'total_workflows' => 0,
+            'total_executions' => 0,
+            'avg_execution_time_ms' => 0,
+        ];
     }
 }

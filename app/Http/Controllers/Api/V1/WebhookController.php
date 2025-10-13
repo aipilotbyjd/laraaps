@@ -19,7 +19,7 @@ class WebhookController extends Controller
 
     public function handleIncomingWebhook(Request $request, $workflowId, $path)
     {
-        return $this->webhookService->handleIncomingWebhook($workflowId, $path, $request->all());
+        return $this->webhookService->handleIncomingWebhook($workflowId, $path, $request);
     }
 
     public function index(Request $request)
