@@ -59,11 +59,11 @@ class Organization extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            if (!$model->id) {
+            if (! $model->id) {
                 $model->id = (string) Str::uuid();
             }
-            if (!$model->slug) {
-                $model->slug = Str::slug($model->name) . '-' . Str::random(6);
+            if (! $model->slug) {
+                $model->slug = Str::slug($model->name).'-'.Str::random(6);
             }
         });
     }
@@ -116,18 +116,19 @@ class Organization extends Model
     // Helper methods
     public function isActive(): bool
     {
-        return $this->is_active && !$this->suspended_at;
+        return $this->is_active && ! $this->suspended_at;
     }
 
     public function canAddWorkflow(): bool
     {
         $limit = $this->limits['workflows'] ?? 10;
+
         return $this->workflows()->count() < $limit;
     }
 
     public function canExecute(): bool
     {
-        if (!$this->isActive()) {
+        if (! $this->isActive()) {
             return false;
         }
 
@@ -143,6 +144,7 @@ class Organization extends Model
     public function canAddMember(): bool
     {
         $limit = $this->limits['team_members'] ?? 5;
+
         return $this->users()->count() < $limit;
     }
 }

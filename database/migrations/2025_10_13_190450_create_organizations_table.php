@@ -13,7 +13,7 @@ return new class extends Migration
     {
         // Drop existing table if it exists
         Schema::dropIfExists('organizations');
-        
+
         Schema::create('organizations', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('suspension_reason')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->index('slug');
             $table->index('owner_id');
             $table->index('is_active');

@@ -22,8 +22,8 @@ class AuthService
             // Create organization for the user
             $organization = Organization::create([
                 'id' => (string) Str::uuid(),
-                'name' => $data['organization_name'] ?? $data['name'] . "'s Workspace",
-                'slug' => Str::slug($data['organization_name'] ?? $data['name']) . '-' . Str::random(6),
+                'name' => $data['organization_name'] ?? $data['name']."'s Workspace",
+                'slug' => Str::slug($data['organization_name'] ?? $data['name']).'-'.Str::random(6),
                 'email' => $data['email'],
                 'timezone' => $data['timezone'] ?? 'UTC',
                 'plan' => 'free',

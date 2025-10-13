@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('invite_token')->nullable();
             $table->string('invited_by')->nullable();
             $table->timestamps();
-            
+
             $table->foreign('organization_id')->references('id')->on('organizations')->cascadeOnDelete();
             $table->unique(['organization_id', 'user_id']);
             $table->index('invite_token');
