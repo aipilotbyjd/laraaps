@@ -4,7 +4,9 @@ namespace App\Services\Auth;
 
 use Aacotroneo\Saml2\Facades\Saml2Auth;
 use App\Models\ApiKey;
+use App\Models\Organization;
 use App\Models\User;
+use App\Models\Variable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -16,19 +18,83 @@ class AuthService
 {
     public function register(array $data): array
     {
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+        return DB::transaction(function () use ($data) {
+            // Create organization for the user
+            $organization = Organization::create([
+                'id' => (string) Str::uuid(),
+                'name' => $data['organization_name'] ?? $data['name'] . "'s Workspace",
+                'slug' => Str::slug($data['organization_name'] ?? $data['name']) . '-' . Str::random(6),
+                'email' => $data['email'],
+                'timezone' => $data['timezone'] ?? 'UTC',
+                'plan' => 'free',
+                'is_active' => true,
+            ]);
+
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => Hash::make($data['password']),
+                'org_id' => $organization->id,
+                'role' => 'owner',
+                'status' => 'active',
+            ]);
+
+            // Set the owner
+            $organization->owner_id = $user->id;
+            $organization->save();
+
+            // Also add to organization_members table
+            DB::table('organization_members')->insert([
+                'organization_id' => $organization->id,
+                'user_id' => $user->id,
+                'role' => 'owner',
+                'joined_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Create default variables for the organization
+            $this->createDefaultVariables($organization->id, $user->id);
+
+            // Passport syntax
+            $tokenResult = $user->createToken('auth_token');
+            $token = $tokenResult->accessToken;
+
+            // Load relationships for response
+            $user->load('organization');
+
+            return [
+                'user' => $user,
+                'organization' => $organization,
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ];
+        });
+    }
+
+    private function createDefaultVariables(string $orgId, int $userId): void
+    {
+        Variable::create([
+            'id' => (string) Str::uuid(),
+            'org_id' => $orgId,
+            'user_id' => $userId,
+            'name' => 'APP_NAME',
+            'value' => config('app.name'),
+            'type' => 'string',
+            'scope' => 'global',
+            'is_secret' => false,
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return [
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ];
+        Variable::create([
+            'id' => (string) Str::uuid(),
+            'org_id' => $orgId,
+            'user_id' => $userId,
+            'name' => 'APP_URL',
+            'value' => config('app.url'),
+            'type' => 'string',
+            'scope' => 'global',
+            'is_secret' => false,
+        ]);
     }
 
     public function login(array $data): ?array
@@ -39,7 +105,9 @@ class AuthService
 
         $user = User::where('email', $data['email'])->firstOrFail();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Passport syntax
+        $tokenResult = $user->createToken('auth_token');
+        $token = $tokenResult->accessToken;
 
         return [
             'user' => $user,
@@ -57,7 +125,9 @@ class AuthService
     {
         $user->tokens()->delete();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Passport syntax
+        $tokenResult = $user->createToken('auth_token');
+        $token = $tokenResult->accessToken;
 
         return [
             'access_token' => $token,
@@ -171,7 +241,9 @@ class AuthService
             ]);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Passport syntax
+        $tokenResult = $user->createToken('auth_token');
+        $token = $tokenResult->accessToken;
 
         return [
             'user' => $user,
@@ -204,7 +276,9 @@ class AuthService
             ]);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // Passport syntax
+        $tokenResult = $user->createToken('auth_token');
+        $token = $tokenResult->accessToken;
 
         return [
             'user' => $user,

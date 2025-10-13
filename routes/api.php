@@ -34,33 +34,33 @@ Route::prefix('v1')->group(function () {
     Route::prefix('auth')->controller(AuthController::class)->group(function () {
         Route::post('register', 'register');
         Route::post('login', 'login');
-        Route::post('logout', 'logout')->middleware('auth:sanctum');
-        Route::post('refresh', 'refresh')->middleware('auth:sanctum');
+        Route::post('logout', 'logout')->middleware('auth:api');
+        Route::post('refresh', 'refresh')->middleware('auth:api');
         Route::get('verify-email/{id}/{hash}', 'verifyEmail')->name('verification.verify');
         Route::post('resend-verification', 'resendVerification');
         Route::post('forgot-password', 'forgotPassword');
         Route::post('reset-password', 'resetPassword');
-        Route::post('change-password', 'changePassword')->middleware('auth:sanctum');
+        Route::post('change-password', 'changePassword')->middleware('auth:api');
         Route::get('oauth/{provider}', 'oauthRedirect');
         Route::get('oauth/{provider}/callback', 'oauthCallback');
         Route::post('saml/login', 'samlLogin');
         Route::post('saml/acs', 'samlAcs');
-        Route::post('mfa/enable', 'mfaEnable')->middleware('auth:sanctum');
-        Route::post('mfa/verify', 'mfaVerify')->middleware('auth:sanctum');
-        Route::post('mfa/disable', 'mfaDisable')->middleware('auth:sanctum');
-        Route::get('me', 'me')->middleware('auth:sanctum');
-        Route::put('profile', 'updateProfile')->middleware('auth:sanctum');
-        Route::delete('account', 'deleteAccount')->middleware('auth:sanctum');
-        Route::get('sessions', 'getSessions')->middleware('auth:sanctum');
-        Route::delete('sessions/{id}', 'deleteSession')->middleware('auth:sanctum');
-        Route::get('api-keys', 'getApiKeys')->middleware('auth:sanctum');
-        Route::post('api-keys', 'createApiKey')->middleware('auth:sanctum');
-        Route::delete('api-keys/{id}', 'deleteApiKey')->middleware('auth:sanctum');
+        Route::post('mfa/enable', 'mfaEnable')->middleware('auth:api');
+        Route::post('mfa/verify', 'mfaVerify')->middleware('auth:api');
+        Route::post('mfa/disable', 'mfaDisable')->middleware('auth:api');
+        Route::get('me', 'me')->middleware('auth:api');
+        Route::put('profile', 'updateProfile')->middleware('auth:api');
+        Route::delete('account', 'deleteAccount')->middleware('auth:api');
+        Route::get('sessions', 'getSessions')->middleware('auth:api');
+        Route::delete('sessions/{id}', 'deleteSession')->middleware('auth:api');
+        Route::get('api-keys', 'getApiKeys')->middleware('auth:api');
+        Route::post('api-keys', 'createApiKey')->middleware('auth:api');
+        Route::delete('api-keys/{id}', 'deleteApiKey')->middleware('auth:api');
     });
 
     // 2. WORKFLOW SERVICE API
-    Route::apiResource('workflows', WorkflowController::class);
-    Route::prefix('workflows')->controller(WorkflowController::class)->group(function () {
+    Route::apiResource('workflows', WorkflowController::class)->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class]);
+    Route::prefix('workflows')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(WorkflowController::class)->group(function () {
         Route::post('{id}/duplicate', 'duplicate');
         Route::patch('{id}/activate', 'activate');
         Route::patch('{id}/deactivate', 'deactivate');
@@ -94,7 +94,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 3. NODE REGISTRY SERVICE API
-    Route::prefix('nodes')->controller(NodeController::class)->group(function () {
+    Route::prefix('nodes')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(NodeController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('categories', 'getCategories');
         Route::get('tags', 'getTags');
@@ -114,7 +114,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 4. EXECUTION SERVICE API
-    Route::prefix('executions')->controller(ExecutionController::class)->group(function () {
+    Route::prefix('executions')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(ExecutionController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('{id}', 'show');
         Route::delete('{id}', 'destroy');
@@ -142,12 +142,12 @@ Route::prefix('v1')->group(function () {
         Route::post('queue/clear', 'clearQueue');
         Route::post('queue/priority/{id}', 'setQueuePriority');
     });
-    Route::post('workflows/{id}/execute', [ExecutionController::class, 'executeWorkflow']);
-    Route::post('workflows/{id}/test-execute', [ExecutionController::class, 'testExecuteWorkflow']);
+    Route::post('workflows/{id}/execute', [ExecutionController::class, 'executeWorkflow'])->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class]);
+    Route::post('workflows/{id}/test-execute', [ExecutionController::class, 'testExecuteWorkflow'])->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class]);
 
     // 5. CREDENTIALS SERVICE API
-    Route::apiResource('credentials', CredentialController::class);
-    Route::prefix('credentials')->controller(CredentialController::class)->group(function () {
+    Route::apiResource('credentials', CredentialController::class)->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class]);
+    Route::prefix('credentials')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(CredentialController::class)->group(function () {
         Route::get('types', 'getTypes');
         Route::get('types/{type}/schema', 'getTypeSchema');
         Route::post('{id}/test', 'test');
@@ -163,8 +163,8 @@ Route::prefix('v1')->group(function () {
     });
 
     // 6. WEBHOOK SERVICE API
-    Route::apiResource('webhooks', WebhookController::class);
-    Route::prefix('webhooks')->controller(WebhookController::class)->group(function () {
+    Route::apiResource('webhooks', WebhookController::class)->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class]);
+    Route::prefix('webhooks')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(WebhookController::class)->group(function () {
         Route::post('{id}/test', 'test');
         Route::get('{id}/test-url', 'getTestUrl');
         Route::get('{id}/logs', 'getLogs');
@@ -174,7 +174,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 7. TEMPLATE/MARKETPLACE SERVICE API
-    Route::prefix('templates')->controller(TemplateController::class)->group(function () {
+    Route::prefix('templates')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(TemplateController::class)->group(function () {
         Route::get('/', 'index');
         Route::get('featured', 'getFeatured');
         Route::get('trending', 'getTrending');
@@ -197,7 +197,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 8. ANALYTICS SERVICE API
-    Route::prefix('analytics')->controller(AnalyticsController::class)->group(function () {
+    Route::prefix('analytics')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(AnalyticsController::class)->group(function () {
         Route::get('dashboard', 'getDashboard');
         Route::get('overview', 'getOverview');
         Route::get('workflows/performance', 'getWorkflowPerformance');
@@ -222,7 +222,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 9. NOTIFICATION SERVICE API
-    Route::prefix('notifications')->controller(NotificationController::class)->group(function () {
+    Route::prefix('notifications')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(NotificationController::class)->group(function () {
         Route::get('/', 'index');
         Route::put('{id}/read', 'markAsRead');
         Route::post('mark-all-read', 'markAllAsRead');
@@ -235,7 +235,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 10. STORAGE SERVICE API
-    Route::prefix('storage')->controller(StorageController::class)->group(function () {
+    Route::prefix('storage')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(StorageController::class)->group(function () {
         Route::post('upload', 'upload');
         Route::post('upload/multipart/init', 'initMultipartUpload');
         Route::post('upload/multipart/{id}/part', 'uploadPart');
@@ -248,8 +248,8 @@ Route::prefix('v1')->group(function () {
     });
 
     // 11. ORGANIZATION SERVICE API
-    Route::apiResource('organizations', OrganizationController::class);
-    Route::prefix('organizations/{id}')->controller(OrganizationController::class)->group(function () {
+    Route::apiResource('organizations', OrganizationController::class)->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class]);
+    Route::prefix('organizations/{id}')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(OrganizationController::class)->group(function () {
         Route::get('members', 'getMembers');
         Route::post('members', 'addMember');
         Route::delete('members/{userId}', 'removeMember');
@@ -265,7 +265,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 12. AI/ML SERVICE API
-    Route::prefix('ai')->controller(AiController::class)->group(function () {
+    Route::prefix('ai')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(AiController::class)->group(function () {
         Route::post('suggest-nodes', 'suggestNodes');
         Route::post('suggest-connections', 'suggestConnections');
         Route::post('optimize-workflow', 'optimizeWorkflow');
@@ -277,7 +277,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 13. ADMIN SERVICE API
-    Route::prefix('admin')->controller(AdminController::class)->group(function () {
+    Route::prefix('admin')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(AdminController::class)->group(function () {
         Route::get('system/health', 'getSystemHealth');
         Route::get('system/metrics', 'getSystemMetrics');
         Route::get('system/status', 'getSystemStatus');
@@ -303,15 +303,15 @@ Route::prefix('v1')->group(function () {
     });
 
     // 14. VARIABLES & ENVIRONMENT SERVICE
-    Route::apiResource('variables', VariableController::class);
-    Route::prefix('environments')->controller(VariableController::class)->group(function () {
+    Route::apiResource('variables', VariableController::class)->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class]);
+    Route::prefix('environments')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(VariableController::class)->group(function () {
         Route::get('/', 'getEnvironments');
         Route::post('/', 'createEnvironment');
         Route::put('{id}', 'updateEnvironment');
         Route::delete('{id}', 'deleteEnvironment');
         Route::post('{id}/activate', 'activateEnvironment');
     });
-    Route::prefix('secrets')->controller(VariableController::class)->group(function () {
+    Route::prefix('secrets')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(VariableController::class)->group(function () {
         Route::get('/', 'getSecrets');
         Route::post('/', 'createSecret');
         Route::get('{id}', 'getSecret');
@@ -319,7 +319,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // 15. REAL-TIME COLLABORATION SERVICE
-    Route::prefix('workflows/{id}')->controller(CollaborationController::class)->group(function () {
+    Route::prefix('workflows/{id}')->middleware(['auth:api', \App\Http\Middleware\EnsureOrganizationContext::class])->controller(CollaborationController::class)->group(function () {
         Route::get('presence', 'getPresence');
         Route::post('presence/join', 'joinPresence');
         Route::post('presence/leave', 'leavePresence');
