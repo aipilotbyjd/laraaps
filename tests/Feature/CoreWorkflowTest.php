@@ -2,46 +2,47 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
 use App\Models\Workflow;
 use App\Models\WorkflowExecution;
 use App\Services\Execution\ExecutionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Tests\TestCase;
 
 class CoreWorkflowTest extends TestCase
 {
     use RefreshDatabase;
 
     protected $user;
+
     protected $executionService;
 
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test organization first
         $organization = \App\Models\Organization::create([
             'id' => \Illuminate\Support\Str::uuid(),
             'name' => 'Test Organization',
-            'slug' => 'test-org-' . \Illuminate\Support\Str::random(6),
+            'slug' => 'test-org-'.\Illuminate\Support\Str::random(6),
             'email' => 'test@example.com',
             'plan' => 'free',
             'is_active' => true,
             'limits' => ['workflows' => 10, 'executions_per_month' => 1000, 'team_members' => 5],
         ]);
-        
+
         // Create a test user with organization
         $this->user = User::factory()->create([
-            'org_id' => $organization->id
+            'org_id' => $organization->id,
         ]);
-        
+
         // Set user as organization owner
         $organization->update(['owner_id' => $this->user->id]);
-        
-        $this->executionService = new ExecutionService();
-        
+
+        $this->executionService = new ExecutionService;
+
         // Mock external HTTP requests
         Http::fake([
             'jsonplaceholder.typicode.com/*' => Http::response(['id' => 1, 'title' => 'Test Post'], 200),
@@ -64,7 +65,7 @@ class CoreWorkflowTest extends TestCase
                     'id' => 'start-1',
                     'type' => 'start',
                     'position' => ['x' => 0, 'y' => 0],
-                    'properties' => []
+                    'properties' => [],
                 ],
                 [
                     'id' => 'set-1',
@@ -73,14 +74,14 @@ class CoreWorkflowTest extends TestCase
                     'properties' => [
                         'values' => [
                             ['key' => 'message', 'value' => 'Hello World'],
-                            ['key' => 'status', 'value' => 'active']
-                        ]
-                    ]
-                ]
+                            ['key' => 'status', 'value' => 'active'],
+                        ],
+                    ],
+                ],
             ],
             'connections' => [
-                ['source' => 'start-1', 'target' => 'set-1']
-            ]
+                ['source' => 'start-1', 'target' => 'set-1'],
+            ],
         ]);
 
         $execution = $this->executionService->runWorkflow(
@@ -113,30 +114,30 @@ class CoreWorkflowTest extends TestCase
                     'type' => 'if',
                     'properties' => [
                         'conditions' => [
-                            ['field' => 'age', 'operator' => '>', 'value' => 18]
-                        ]
-                    ]
+                            ['field' => 'age', 'operator' => '>', 'value' => 18],
+                        ],
+                    ],
                 ],
                 [
                     'id' => 'adult-path',
                     'type' => 'set',
                     'properties' => [
-                        'values' => [['key' => 'category', 'value' => 'adult']]
-                    ]
+                        'values' => [['key' => 'category', 'value' => 'adult']],
+                    ],
                 ],
                 [
                     'id' => 'minor-path',
                     'type' => 'set',
                     'properties' => [
-                        'values' => [['key' => 'category', 'value' => 'minor']]
-                    ]
-                ]
+                        'values' => [['key' => 'category', 'value' => 'minor']],
+                    ],
+                ],
             ],
             'connections' => [
                 ['source' => 'start-1', 'target' => 'if-1'],
                 ['source' => 'if-1', 'target' => 'adult-path', 'sourceHandle' => 'true'],
-                ['source' => 'if-1', 'target' => 'minor-path', 'sourceHandle' => 'false']
-            ]
+                ['source' => 'if-1', 'target' => 'minor-path', 'sourceHandle' => 'false'],
+            ],
         ]);
 
         // Test with age > 18
@@ -149,7 +150,7 @@ class CoreWorkflowTest extends TestCase
         );
 
         $this->assertEquals('success', $execution->status);
-        
+
         // Check that adult path was taken
         $nodeExecutions = $execution->nodeExecutions;
         $this->assertTrue($nodeExecutions->contains('node_id', 'adult-path'));
@@ -173,13 +174,13 @@ class CoreWorkflowTest extends TestCase
                     'type' => 'http-request',
                     'properties' => [
                         'url' => 'https://jsonplaceholder.typicode.com/posts/1',
-                        'method' => 'GET'
-                    ]
-                ]
+                        'method' => 'GET',
+                    ],
+                ],
             ],
             'connections' => [
-                ['source' => 'start-1', 'target' => 'http-1']
-            ]
+                ['source' => 'start-1', 'target' => 'http-1'],
+            ],
         ]);
 
         $execution = $this->executionService->runWorkflow(
@@ -191,7 +192,7 @@ class CoreWorkflowTest extends TestCase
         );
 
         $this->assertEquals('success', $execution->status);
-        
+
         // Verify HTTP request was made
         Http::assertSent(function ($request) {
             return $request->url() === 'https://jsonplaceholder.typicode.com/posts/1';
@@ -215,22 +216,22 @@ class CoreWorkflowTest extends TestCase
                     'type' => 'set',
                     'properties' => [
                         'values' => [
-                            ['key' => 'items', 'value' => [1, 2, 3, 4, 5]]
-                        ]
-                    ]
+                            ['key' => 'items', 'value' => [1, 2, 3, 4, 5]],
+                        ],
+                    ],
                 ],
                 [
                     'id' => 'loop-1',
                     'type' => 'loop',
                     'properties' => [
-                        'items' => '{{items}}'
-                    ]
-                ]
+                        'items' => '{{items}}',
+                    ],
+                ],
             ],
             'connections' => [
                 ['source' => 'start-1', 'target' => 'set-1'],
-                ['source' => 'set-1', 'target' => 'loop-1']
-            ]
+                ['source' => 'set-1', 'target' => 'loop-1'],
+            ],
         ]);
 
         $execution = $this->executionService->runWorkflow(
@@ -260,13 +261,13 @@ class CoreWorkflowTest extends TestCase
                     'id' => 'code-1',
                     'type' => 'code',
                     'properties' => [
-                        'code' => 'throw new Exception("Test error");'
-                    ]
-                ]
+                        'code' => 'throw new Exception("Test error");',
+                    ],
+                ],
             ],
             'connections' => [
-                ['source' => 'start-1', 'target' => 'code-1']
-            ]
+                ['source' => 'start-1', 'target' => 'code-1'],
+            ],
         ]);
 
         $execution = $this->executionService->runWorkflow(
@@ -296,12 +297,12 @@ class CoreWorkflowTest extends TestCase
             'nodes' => [
                 ['id' => 'start-1', 'type' => 'start'],
                 ['id' => 'set-1', 'type' => 'set', 'properties' => [
-                    'values' => [['key' => 'test', 'value' => true]]
-                ]]
+                    'values' => [['key' => 'test', 'value' => true]],
+                ]],
             ],
             'connections' => [
-                ['source' => 'start-1', 'target' => 'set-1']
-            ]
+                ['source' => 'start-1', 'target' => 'set-1'],
+            ],
         ]);
 
         $response->assertStatus(201);
@@ -309,7 +310,7 @@ class CoreWorkflowTest extends TestCase
 
         // Execute workflow via API
         $executeResponse = $this->postJson("/api/v1/workflows/{$workflowId}/test-execute", [
-            'trigger_data' => ['source' => 'api_test']
+            'trigger_data' => ['source' => 'api_test'],
         ]);
 
         $executeResponse->assertStatus(200);
@@ -318,7 +319,7 @@ class CoreWorkflowTest extends TestCase
         // Check execution status
         $executionId = $executeResponse->json('data.execution_id');
         $statusResponse = $this->getJson("/api/v1/executions/{$executionId}");
-        
+
         $statusResponse->assertStatus(200);
         $this->assertContains($statusResponse->json('data.status'), ['success', 'running']);
     }
@@ -338,9 +339,9 @@ class CoreWorkflowTest extends TestCase
                 'org_id' => $this->user->org_id,
                 'user_id' => $this->user->id,
                 'nodes' => [
-                    ['id' => 'start-1', 'type' => 'start']
+                    ['id' => 'start-1', 'type' => 'start'],
                 ],
-                'connections' => []
+                'connections' => [],
             ]);
 
             $this->executionService->runWorkflow(
@@ -354,10 +355,10 @@ class CoreWorkflowTest extends TestCase
 
         // Get statistics
         $response = $this->getJson('/api/v1/executions/stats');
-        
+
         $response->assertStatus(200);
         $stats = $response->json('data');
-        
+
         $this->assertArrayHasKey('total', $stats);
         $this->assertArrayHasKey('success', $stats);
         $this->assertArrayHasKey('error', $stats);
@@ -377,12 +378,12 @@ class CoreWorkflowTest extends TestCase
             'nodes' => [
                 ['id' => 'start-1', 'type' => 'start'],
                 ['id' => 'set-1', 'type' => 'set', 'properties' => [
-                    'values' => [['key' => 'processed', 'value' => true]]
-                ]]
+                    'values' => [['key' => 'processed', 'value' => true]],
+                ]],
             ],
             'connections' => [
-                ['source' => 'start-1', 'target' => 'set-1']
-            ]
+                ['source' => 'start-1', 'target' => 'set-1'],
+            ],
         ]);
 
         // Execute workflow multiple times concurrently
